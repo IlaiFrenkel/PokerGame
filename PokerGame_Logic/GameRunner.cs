@@ -28,10 +28,10 @@ namespace PokerGame_Logic
             m_BigBlind = 10;
             m_SmallBlindIndex = 0;
             m_BigBlindIndex = 1;
-            this.startNewRound();
+            this.StartNewRound();
         }
 
-        public void startNewRound()
+        public void StartNewRound()
         {
             int cardIndex;
             Random randomCardIndex = new Random();
@@ -40,7 +40,7 @@ namespace PokerGame_Logic
             {
                 for (int i = 0; i < 2; i++)
                 {
-                    cardIndex = randomCardIndex.Next(m_GameBoard.m_DeckList.Count + 1);
+                    cardIndex = randomCardIndex.Next(m_GameBoard.m_DeckList.Count);
                     player.m_Hand.Add(m_GameBoard.m_DeckList[cardIndex]);
                     m_GameBoard.m_DeckList.RemoveAt(cardIndex);
                 }
