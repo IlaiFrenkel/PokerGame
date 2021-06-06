@@ -9,8 +9,8 @@ namespace PokerGame_Logic
     {
         public static void Main()
         {
-            List<Player> gamePlayers = new List<Player>();
-            GameBoard gameBoard = new GameBoard(gamePlayers);
+            ////QA:
+            //QA.Run();
         }
     }
 }

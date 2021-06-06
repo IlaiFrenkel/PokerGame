@@ -18,13 +18,14 @@ namespace PokerGame_Logic
         public GameBoard(List<Player> i_PlayersList)
         {
             m_DeckList = new List<Card>();
+            m_OpenCardsList = new List<Card>();
             m_PlayersList = i_PlayersList;
             initDeck();
             initPlayersMoney();
             m_MoneyOnBoard = 0;
         }
 
-        private void initDeck()
+        public void initDeck()
         {
             for (int i = 0; i < 4; i++)
             {
@@ -40,6 +41,14 @@ namespace PokerGame_Logic
             foreach (Player player in this.m_PlayersList)
             {
                 player.m_Money = 400;
+            }
+        }
+
+        public void RemovePlayersHandsWhenRoundFinished()
+        {
+            foreach (Player player in m_PlayersList)
+            {
+                player.m_Hand = new List<Card>();
             }
         }
     }

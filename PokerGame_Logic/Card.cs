@@ -7,9 +7,9 @@ namespace PokerGame_Logic
 {
     public class Card
     {
-        public eCardType m_CardType { get; }
+        public eCardType m_CardType;
 
-        public eCardValue m_CardValue { get; }
+        public eCardValue m_CardValue;
 
         public Card(eCardType i_CardType, eCardValue i_CardValue)
         {

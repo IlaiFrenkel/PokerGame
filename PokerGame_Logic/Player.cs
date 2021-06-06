@@ -7,17 +7,20 @@ namespace PokerGame_Logic
 {
     public class Player
     {
-        public string m_Name { get; }
+        public string m_Name;
 
-        public List<Card> m_Hand { get; set; }
+        public List<Card> m_Hand;
 
-        public int m_Money { get; set; }
+        public List<Card> m_FiveBestCardsWhenRoundFinished;
+
+        public int m_Money;
 
         public Player(string i_Name)
         {
             m_Name = i_Name;
             m_Money = 0;
             m_Hand = new List<Card>();
+            m_FiveBestCardsWhenRoundFinished = new List<Card>();
         }
     }
 }
