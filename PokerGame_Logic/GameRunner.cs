@@ -7,9 +7,6 @@ namespace PokerGame_Logic
 {
     public class GameRunner
     {
-        //Remove!!!!!!
-        public int numOfCombinations;
-
         public GameBoard m_GameBoard;
 
         public int m_SmallBlind;
@@ -44,9 +41,6 @@ namespace PokerGame_Logic
 
         public GameRunner(List<Player> i_PlayerList)
         {
-            //Remove!!!!!!
-            this.numOfCombinations = 0;
-
             m_GameBoard = new GameBoard(i_PlayerList);
             m_SmallBlind = 25;
             m_BigBlind = 50;
@@ -90,6 +84,7 @@ namespace PokerGame_Logic
             m_RaisedPlayerIndex = (m_BigBlindIndex + 1) % m_NumOfPlayers;
             initPlayersInRoundScores();
             m_NumOfWinningPlayersInRound = 0;
+            m_SubRoundNumber = 0;
         }
 
 
@@ -140,11 +135,14 @@ namespace PokerGame_Logic
         {
             for (int i = 0; i < m_PlayersInRoundScores.Length; i++)
             {
-                int equalBetweenTwoListsResult = ChooseBetterListBetweenTwoFiveCardsLists(m_GameBoard.m_PlayersList[i].m_FiveBestCardsWhenRoundFinished, i_FiveBestCards);
-
-                if (equalBetweenTwoListsResult == 2)
+                if (m_PlayersInRoundList[i] != -1) 
                 {
-                    m_PlayersInRoundScores[i] = -1;
+                    int equalBetweenTwoListsResult = ChooseBetterListBetweenTwoFiveCardsLists(m_GameBoard.m_PlayersList[i].m_FiveBestCardsWhenRoundFinished, i_FiveBestCards);
+
+                    if (equalBetweenTwoListsResult == 2)
+                    {
+                        m_PlayersInRoundScores[i] = -1;
+                    } 
                 }
             }
         }
@@ -156,12 +154,15 @@ namespace PokerGame_Logic
 
             for (int i = 0; i < m_PlayersInRoundScores.Length; i++)
             {
+                if (m_PlayersInRoundList[i] != -1)
+                {
                     int equalBetweenTwoListsResult = ChooseBetterListBetweenTwoFiveCardsLists(m_GameBoard.m_PlayersList[i].m_FiveBestCardsWhenRoundFinished, fiveBestCards);
 
                     if (equalBetweenTwoListsResult == 1)
                     {
                         fiveBestCards = m_GameBoard.m_PlayersList[i].m_FiveBestCardsWhenRoundFinished;
                     }
+                }
             }
 
             return fiveBestCards;
@@ -216,10 +217,9 @@ namespace PokerGame_Logic
 
         private void findFiveBestCardsOfPlayer(int i_playerIndex)
         {
-            //Remove!!!!!!
-            this.numOfCombinations = 0;
-
+            // Start with the 5 cards that are open on the board.
             List<Card> currentFiveBestCards = m_GameBoard.m_OpenCardsList;
+
             List<Card> nextFiveBestCards = new List<Card>();
 
             // Check all the options that include the two hand-cards of the player.
@@ -236,9 +236,6 @@ namespace PokerGame_Logic
 
                     for (int k = j + 1; k < 5; k++)
                     {
-                        //Remove!!!!!!
-                        this.numOfCombinations++;
-
                         nextFiveBestCards.Add(m_GameBoard.m_OpenCardsList[k]);
 
                         // Use copies of the lists in the comparing because in the comparing process
@@ -274,7 +271,7 @@ namespace PokerGame_Logic
                 {
                     nextFiveBestCards.Add(m_GameBoard.m_OpenCardsList[j]);
 
-                    for (int k = j + 1; j < 3; j++)
+                    for (int k = j + 1; k < 3; k++)
                     {
                         nextFiveBestCards.Add(m_GameBoard.m_OpenCardsList[k]);
 
@@ -282,11 +279,8 @@ namespace PokerGame_Logic
                         {
                             nextFiveBestCards.Add(m_GameBoard.m_OpenCardsList[l]);
 
-                            for (int m = l + 1; l < 5; l++)
+                            for (int m = l + 1; m < 5; m++)
                             {
-                                //Remove!!!!!!
-                                this.numOfCombinations++;
-
                                 nextFiveBestCards.Add(m_GameBoard.m_OpenCardsList[m]);
 
                                 // Use copies of the lists in the comparing because in the comparing process

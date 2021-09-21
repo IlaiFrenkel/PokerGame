@@ -39,7 +39,7 @@ namespace PokerGame_UI
         {
             m_GameRunner = new GameRunner(i_PlayersList);
             m_ButtonArray = new Button[i_PlayersList.Count];
-            this.m_MoneyLabels = new Label[i_PlayersList.Count];
+            m_MoneyLabels = new Label[i_PlayersList.Count];
             m_BlindsLabels = new Label[2];
 
             initImageList();
@@ -123,7 +123,12 @@ namespace PokerGame_UI
         {
             this.labelCurrentPlayerName.Content = currentPlayer().m_Name;
             this.labelMoneyOnBoardValue.Content = m_GameRunner.m_GameBoard.m_MoneyOnBoard.ToString();
-            this.m_MoneyLabels[m_GameRunner.m_CurrentPlayerIndex].Content = currentPlayer().m_Money.ToString();
+
+            for (int i = 0; i < m_GameRunner.m_NumOfPlayers; i++)
+            {
+                this.m_MoneyLabels[i].Content = m_GameRunner.m_GameBoard.m_PlayersList[i].m_Money.ToString();
+            }
+
             this.textBoxMoneyToRaise.Text = null;
             this.labelRaisedMoneyAmount.Content = m_GameRunner.m_RaisedAmount;
         }
@@ -132,13 +137,19 @@ namespace PokerGame_UI
         {
             int playerIndex = Convert.ToInt32((sender as Button).Tag);
 
-            eCardValue firstCardValue = m_GameRunner.m_GameBoard.m_PlayersList[playerIndex].m_Hand[0].m_CardValue;
-            eCardType firstCardType = m_GameRunner.m_GameBoard.m_PlayersList[playerIndex].m_Hand[0].m_CardType;
-            eCardValue secondCardValue = m_GameRunner.m_GameBoard.m_PlayersList[playerIndex].m_Hand[1].m_CardValue;
-            eCardType secondCardType = m_GameRunner.m_GameBoard.m_PlayersList[playerIndex].m_Hand[1].m_CardType;
-
-            this.buttonPlayerCard1.Background = new ImageBrush(m_ImagesList[4 * ((int)firstCardValue - 1) + (int)firstCardType].Source);
-            this.buttonPlayerCard2.Background = new ImageBrush(m_ImagesList[4 * ((int)secondCardValue - 1) + (int)secondCardType].Source);
+            if (playerIndex < m_GameRunner.m_GameBoard.m_PlayersList.Count)
+            {
+                eCardValue firstCardValue = m_GameRunner.m_GameBoard.m_PlayersList[playerIndex].m_Hand[0].m_CardValue;
+                eCardType firstCardType = m_GameRunner.m_GameBoard.m_PlayersList[playerIndex].m_Hand[0].m_CardType;
+                eCardValue secondCardValue = m_GameRunner.m_GameBoard.m_PlayersList[playerIndex].m_Hand[1].m_CardValue;
+                eCardType secondCardType = m_GameRunner.m_GameBoard.m_PlayersList[playerIndex].m_Hand[1].m_CardType;
+                this.buttonPlayerCard1.Background = new ImageBrush(m_ImagesList[4 * ((int)firstCardValue - 1) + (int)firstCardType].Source);
+                this.buttonPlayerCard2.Background = new ImageBrush(m_ImagesList[4 * ((int)secondCardValue - 1) + (int)secondCardType].Source);
+            }
+            else
+            {
+                MessageBox.Show("This player loss the game");
+            }
         }
 
         private Player currentPlayer()
@@ -154,7 +165,7 @@ namespace PokerGame_UI
             {
                 MessageBox.Show("Please enter the amount of money to raise!");
             }
-            else if (moneyToRaise > currentPlayer().m_Money)
+            else if (moneyToRaise > currentPlayer().m_Money + m_GameRunner.m_RaisedMoneyOfEveryPlayerList[m_GameRunner.m_CurrentPlayerIndex])
             {
                 MessageBox.Show("amount of money can't be bigger then the money you have!");
             }
@@ -177,7 +188,7 @@ namespace PokerGame_UI
 
         private void buttonMakeEqual_Click(object sender, RoutedEventArgs e)
         {
-            if (currentPlayer().m_Money >= m_GameRunner.m_RaisedAmount)
+            if (currentPlayer().m_Money + m_GameRunner.m_RaisedMoneyOfEveryPlayerList[m_GameRunner.m_CurrentPlayerIndex] >= m_GameRunner.m_RaisedAmount)
             {
                 m_GameRunner.m_NumOfPlayersEqualed += 1;
                 updateMoneyOnEqualOrRaise();
@@ -215,6 +226,8 @@ namespace PokerGame_UI
             if (m_GameRunner.m_SubRoundNumber == 3)
             {
                 roundFinished();
+
+                return;
             }
             else if (m_GameRunner.m_SubRoundNumber == 0)
             {
@@ -229,7 +242,6 @@ namespace PokerGame_UI
                 this.buttonCard1.Background = new ImageBrush(m_ImagesList[4 * ((int)firstCardValue - 1) + (int)firstCardType].Source);
                 this.buttonCard2.Background = new ImageBrush(m_ImagesList[4 * ((int)secondCardValue - 1) + (int)secondCardType].Source);
                 this.buttonCard3.Background = new ImageBrush(m_ImagesList[4 * ((int)thirdCardValue - 1) + (int)thirdCardType].Source);
-
             }
             else if (m_GameRunner.m_SubRoundNumber == 1)
             {
@@ -313,17 +325,88 @@ namespace PokerGame_UI
             }
         }
 
+        private void updateMoneyLabelsWhenPlayerLoss(int index)
+        {
+            Label[] newMoneyLabels = new Label[m_MoneyLabels.Length - 1];
+            int j = 0;
+
+            for (int i = 0; i < newMoneyLabels.Length; i++)
+            {
+                if (i != index)
+                {
+                    newMoneyLabels[i] = m_MoneyLabels[j];
+                    j++;
+                }
+                else
+                {
+                    j++;
+                    newMoneyLabels[i] = m_MoneyLabels[j];
+                    j++;
+                }
+            }
+
+            m_MoneyLabels = newMoneyLabels;
+        }
+
+        private void updateButtonArrayWhenPlayerLoss(int index)
+        {
+            Button[] newButtonArray = new Button[m_ButtonArray.Length - 1];
+            int j = 0;
+
+            for (int i = 0; i < newButtonArray.Length; i++)
+            {
+                if (i != index)
+                {
+                    newButtonArray[i] = m_ButtonArray[j];
+                    j++;
+                }
+                else
+                {
+                    j++;
+                    newButtonArray[i] = m_ButtonArray[j];
+                    j++;
+                }
+            }
+
+            m_ButtonArray = newButtonArray;
+        }
+
         private void roundFinished()
         {
             MessageBox.Show("Round finished!");
             divideMoneyWhenRoundFinished();
-            MessageBox.Show(string.Format("{0}", m_GameRunner.numOfCombinations));
+
+            int numOfPlayers = m_GameRunner.m_NumOfPlayers;
+
+            for (int i = 0; i < numOfPlayers; i++)
+            {
+                if (m_GameRunner.m_GameBoard.m_PlayersList[i].m_Money == 0)
+                {
+                    MessageBox.Show(string.Format("{0} loss the game!", m_GameRunner.m_GameBoard.m_PlayersList[i].m_Name));
+                    m_GameRunner.m_NumOfPlayers--;
+                    numOfPlayers--;
+                    m_GameRunner.m_GameBoard.m_PlayersList.RemoveAt(i);
+                    m_GameRunner.MoveTurnToNextPlayer();
+                    updateMoneyLabelsWhenPlayerLoss(i);
+                    updateButtonArrayWhenPlayerLoss(i);
+                }
+            }
+
             updateBlidnsIndicesWhenRoundFinished();
             moveBlindsLabelsWhenRoundFinished();
             initDeckWhenRoundFinished();
             removeCardsFromButtons();
-            m_GameRunner.StartNewRound();
-            updateLabels();
+
+            if (m_GameRunner.m_NumOfPlayers == 1)
+            {
+                MessageBox.Show(string.Format("{0} won the game!", m_GameRunner.m_GameBoard.m_PlayersList[0].m_Name));
+                this.Close();
+            }
+            else
+            {
+                m_GameRunner.StartNewRound();
+                updateLabels();
+            }
         }
 
         private void divideMoneyWhenRoundFinished()
@@ -376,8 +459,8 @@ namespace PokerGame_UI
 
         private void moveBlindsLabelsWhenRoundFinished()
         {
-            this.m_BlindsLabels[0].Margin = new Thickness(100 + m_GameRunner.m_SmallBlindIndex * 80, 100, 0, 0);
-            this.m_BlindsLabels[1].Margin = new Thickness(100 + m_GameRunner.m_BigBlindIndex * 80, 100, 0, 0);
+            m_BlindsLabels[0].Margin = new Thickness(100 + m_GameRunner.m_SmallBlindIndex * 80, 100, 0, 0);
+            m_BlindsLabels[1].Margin = new Thickness(100 + m_GameRunner.m_BigBlindIndex * 80, 100, 0, 0);
         }
 
         private void initDeckWhenRoundFinished()
